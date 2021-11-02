@@ -8,16 +8,16 @@ import ThumbUp from '@mui/icons-material/ThumbUp';
 import { useQuery } from 'react-query';
 
 function App() {
-  const {error, data, isLoading} = useQuery("movies", async () => {
+  const { error, data, isLoading } = useQuery("movies", async () => {
     const movies = await fetch("http://localhost:3001/movies")
     return movies.json()
   })
 
-  if(error) {
+  if (error) {
     return "error"
   }
 
-  if(isLoading) {
+  if (isLoading) {
     return "this is still loading"
   }
 
@@ -36,7 +36,7 @@ function App() {
         </Grid>
         <Grid item container direction="row" style={{ marginTop: "2%" }} spacing={4}>
           {
-            data.map(({name}, index) => {
+            data.map(({ name }, index) => {
               return (
                 <Grid item key={index}>
                   <Card sx={{ maxWidth: 345 }}>
@@ -55,16 +55,23 @@ function App() {
                       </Typography>
                     </CardContent>
                     <CardActions sx={{ justifyContent: "flex-end" }}>
-                      <IconButton onClick={() => {
-                        console.log("I like this")
-                      }}>
-                        <ThumbUp fontSize="medium" />
-                      </IconButton>
-                      <IconButton onClick={() => {
-                        console.log("I dislike this")
-                      }}>
-                        <ThumbDown fontSize="medium" />
-                      </IconButton>
+                      <div style={{display: "flex", textAlign: "center", justifyContent: "center", alignItems: "center"}}>
+                        <IconButton onClick={() => {
+                          console.log("I like this")
+                        }}>
+                          <ThumbUp fontSize="medium" />
+                        </IconButton>
+                        <label>250</label>
+                      </div>
+
+                      <div style={{display: "flex"}}>
+                        <IconButton onClick={() => {
+                          console.log("I dislike this")
+                        }}>
+                          <ThumbUp fontSize="medium" />
+                        </IconButton>
+                        <label>250</label>
+                      </div>
                     </CardActions>
                   </Card>
                 </Grid>
