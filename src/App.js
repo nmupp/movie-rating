@@ -5,13 +5,44 @@ import moviebgrnd from './movies.jpg'
 import movieLogo from './movie-logo.png'
 import ThumbDown from '@mui/icons-material/ThumbDown';
 import ThumbUp from '@mui/icons-material/ThumbUp';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 function App() {
+  const queryClient = useQueryClient()
   const { error, data, isLoading } = useQuery("movies", async () => {
     const movies = await fetch("http://localhost:3001/movies")
     return movies.json()
   })
+
+  const likesMutation = useMutation(async ({ id }) => {
+    const movies = await fetch(`http://localhost:3001/movies/${id}/likes`, {
+      method: "PATCH"
+    })
+  },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("movies")
+      },
+      onError: () => {
+        console.log('Error while updating likes')
+      }
+    }
+  )
+
+  const dislikesMutation = useMutation(async ({ id }) => {
+    const movies = await fetch(`http://localhost:3001/movies/${id}/dislikes`, {
+      method: "PATCH"
+    })
+  },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("movies")
+      },
+      onError: () => {
+        console.log('Error while updating likes')
+      }
+    }
+  )
 
   if (error) {
     return "error"
@@ -36,7 +67,7 @@ function App() {
         </Grid>
         <Grid item container direction="row" style={{ marginTop: "2%" }} spacing={4}>
           {
-            data.map(({ name }, index) => {
+            data.map(({ name, description, likes, dislikes, _id }, index) => {
               return (
                 <Grid item key={index}>
                   <Card sx={{ maxWidth: 345 }}>
@@ -50,28 +81,29 @@ function App() {
                         {name}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Lizards are a widespread group of squamate reptiles, with over 6,000
-                        species, ranging across all continents except Antarctica
+                        {description}
                       </Typography>
                     </CardContent>
                     <CardActions sx={{ justifyContent: "flex-end" }}>
-                      <div style={{display: "flex", textAlign: "center", justifyContent: "center", alignItems: "center"}}>
+                      <div style={{ alignItems: "center", justifyContent: "center", textAlign: "center" }}>
                         <IconButton onClick={() => {
                           console.log("I like this")
+                          likesMutation.mutate({id: _id})
                         }}>
                           <ThumbUp fontSize="medium" />
                         </IconButton>
-                        <label>250</label>
+                        <label style={{ fontSize: "14px" }}>{likes}</label>
                       </div>
-
-                      <div style={{display: "flex"}}>
+                      <div>
                         <IconButton onClick={() => {
                           console.log("I dislike this")
+                          dislikesMutation.mutate({id: _id})
                         }}>
-                          <ThumbUp fontSize="medium" />
+                          <ThumbDown fontSize="medium" />
                         </IconButton>
-                        <label>250</label>
+                        <label>{dislikes}</label>
                       </div>
+
                     </CardActions>
                   </Card>
                 </Grid>
